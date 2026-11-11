@@ -1,0 +1,8 @@
+numpy>=2.0
+pandas>=2.2
+matplotlib>=3.9
+seaborn>=0.13
+pytz>=2024.1
+openpyxl>=3.1
+Pillow>=10.0
+pypdf>=5.0
