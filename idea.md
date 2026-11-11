@@ -7,9 +7,14 @@ implemented yet.
 
 ## 1. Result history / time series (highest value)
 
-**Problem:** every weekly run overwrites `results/`. Last week's leaderboard is
-gone, so there's no way to see whether a student is climbing or sliding — which
-is the actual point of running this weekly.
+**Problem:** `old_results/` archiving and date-stamped (`DATE_STAMP`) filenames
+already give per-run file persistence — last week's leaderboard isn't actually
+gone, it's sitting in `old_results/` under its own dated filename. What's still
+missing is a *structured* history: a per-date folder layout, a convenient
+pointer to the latest run, and a single file you can query across weeks to see
+whether a student is climbing or sliding — which is the actual point of
+running this weekly, and today requires manually opening multiple dated CSVs
+to reconstruct.
 
 **Proposal:**
 - Write each run to `results/YYYY-MM-DD/` instead of overwriting `results/`.
@@ -71,13 +76,21 @@ Low priority while it works.
 
 ## 5. Consistent as-of timestamps
 
-`regularMarketPrice` means different things per asset: intraday for `^GSPC` and
-the futures, 24/7 for `BTC-USD`, once-daily-with-a-lag for the MSCI indices.
-Running mid-session mixes as-of times.
+A uniform intraday-vs-close rule is already implemented: `_is_market_open()`
+gates a single choice — intraday price if NYSE is in its 9:30am-4:00pm ET
+window, else the most recent daily close — applied identically to all 8
+assets, not a per-asset mix. This resolves the original concern (fetching
+`^GSPC`'s intraday quote while mixing in a stale close for something else in
+the same run).
 
-Options: (a) just always run after 4pm ET and note it, or (b) pull the last
-completed daily close for every asset so all eight share one as-of date.
-(b) is more defensible but ignores same-day moves.
+**Remaining gap:** that NYSE-hours gate is applied even to assets that don't
+follow the NYSE calendar — Bitcoin (`BTC-USD`, trades 24/7) and the JPY/USD
+rate (trades nearly 24/5 across global sessions). Outside NYSE hours, these
+get treated the same as the equity/futures assets and are scored off the most
+recent daily close, even though a live/current price would have been
+available for them specifically. Worth deciding whether Bitcoin and JPY/USD
+should use their own always-open intraday price regardless of NYSE hours,
+rather than inheriting the NYSE gate.
 
 ---
 

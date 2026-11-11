@@ -86,8 +86,12 @@ as-is if it does). Effects:
   competitors only, plus a line reporting where CONTROL *would* have placed,
   e.g. `Benchmark (CONTROL) would place 1 of 49 by Average APE, 1 of 49 by
   rank score.`
-- **VIZ 2 / Cell 13:** the rank-sorted heatmap is competitor-only, with a
-  subtitle pointing back to the "would place" line.
+- **VIZ 2 / Cell 13:** `INCLUDE_CONTROL_IN_HEATMAP = True`, so the rank-sorted
+  heatmap *shows* CONTROL for reference on a full-field rank scale (not the
+  competitor-only one) — distinct from CONTROL being excluded from
+  `Total_Rank_Score`/the printed winner in STEP 6. The subtitle spells out that
+  the ranks shown are full-field and may differ by up to 1 from STEP 6's
+  `Total_Rank_Score`.
 - **VIZ 4 / Cell 15:** the "Winner vs CONTROL vs Actual" chart uses the same
   non-benchmark winner as Cell 8 (previously it would have used whoever was
   first in a CONTROL-inclusive sort — degenerate if CONTROL wins, since it'd
@@ -137,15 +141,21 @@ get emailed out looking like a real (if empty) result.
 session and discarded when it ended.
 
 **Now:** every chart `plt.savefig()`s into `results/` as it's generated;
-a final cell writes `full_leaderboard.csv` and `rank_standings.csv`. Paths are
-anchored to the notebook's own folder (`BASE_DIR`), not the kernel's working
-directory, so this doesn't silently write elsewhere depending on how the
-kernel was launched.
+a final cell writes `full_leaderboard.csv` and `rank_standings.csv`. Before any
+of that, the config cell archives whatever's already sitting in `results/`
+(the previous run's outputs) into `old_results/` via `shutil.move`, so
+`results/` always holds only the latest run's files while older runs survive
+in `old_results/`. Every output filename also carries a `DATE_STAMP`
+(`YYYY-MM-DD`), so files from different days never collide even inside
+`old_results/`. Paths are relative to the current working directory the
+notebook is run from (see Cell 2's config comment), not a hardcoded folder.
 
 **Why:** Colab's `/content/` is ephemeral; a local, weekly-run notebook needs
-durable output. (Note: `results/` is overwritten each run — no history across
-weeks yet. That's tracked as backlog in `idea.md` #1, deliberately out of
-scope for now.)
+durable output. (Note: multiple weeks' outputs already persist on disk today
+via the `old_results/` archive and date-stamped filenames — what's still out
+of scope is the *structured* form of that history described in `idea.md` #1:
+`results/YYYY-MM-DD/` subfolders, a `results/latest/` convenience copy, and a
+long-format `results/history.csv` for rank-over-time charts.)
 
 ---
 
@@ -236,7 +246,14 @@ in play, independent of how many happen to have tickers.
 
 ## Explicitly out of scope (see `idea.md`)
 
-Result history across weeks, persisting `price_check` with a timestamp,
-caching last-good prices as an additional fallback tier, switching to
-`yfinance`, and a data-quality pre-flight check are all deferred — tracked in
-`idea.md`, not implemented here.
+1. The *structured* form of cross-week history: `results/YYYY-MM-DD/`
+   subfolders, a `results/latest/` convenience copy, and a long-format
+   `results/history.csv` for rank-over-time/bump-chart features (`idea.md`
+   #1). Per-run file persistence itself already exists today via
+   `old_results/` archiving and date-stamped filenames (see #6 above) — it's
+   specifically this structured time-series layer that's deferred.
+
+Persisting `price_check` with a timestamp, caching last-good prices as an
+additional fallback tier, switching to `yfinance`, and a data-quality
+pre-flight check are also deferred — tracked in `idea.md`, not implemented
+here.
