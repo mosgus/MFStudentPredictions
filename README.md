@@ -158,7 +158,7 @@ use in class):
 1. Push this repository to GitHub (`main` branch).
 2. Go to [Streamlit Community Cloud](https://streamlit.io/cloud) and sign in
    with your GitHub account.
-3. Click "New app," select this repository, set the main file to `app.py`, and
+3. Click "New app," select this repository, set the main file to `streamlit_app.py`, and
    deploy.
 
 The app will be live at a URL like `https://yourname-predictions.streamlit.app`.
