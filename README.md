@@ -17,10 +17,23 @@ click Run All."
 MFStudentPredictions/
 ├── README.md                                    <- you are here
 ├── requirements.txt                              <- list of Python packages needed
+├── app.py                                        <- Streamlit web app entrypoint
 ├── sorted_predictions.ipynb                      <- THE notebook — run this every week
 ├── compile_results_pdf.py                        <- optional helper: bundles this week's
 │                                                     charts into one PDF
 ├── Fall 2026 Market Predictions (Responses).xlsx  <- the input: raw survey responses
+│
+├── mfpredict/                                    <- Python package with core scoring logic
+│   ├── __init__.py
+│   ├── config.py                                 <- constants
+│   ├── loading.py                                <- file parsing and validation
+│   ├── prices.py                                 <- Yahoo Finance price fetching
+│   ├── scoring.py                                <- APE, rankings, winners
+│   ├── charts.py                                 <- matplotlib figure rendering
+│   └── pdf.py                                    <- PNG to PDF conversion
+│
+├── .streamlit/                                   <- Streamlit configuration
+│   └── config.toml
 │
 ├── results/                                      <- this week's output lands here
 │   ├── full_leaderboard_YYYY-MM-DD.csv
@@ -34,6 +47,18 @@ MFStudentPredictions/
 ├── old_results/                                  <- every previous week's output gets
 │                                                     moved here automatically when you
 │                                                     run the notebook again
+│
+├── tests/                                        <- pytest test suite
+│   ├── test_parity.py                            <- S1 parity tests
+│   ├── test_loading.py                           <- S1 loading tests
+│   ├── test_charts_pdf.py                        <- S1 charts/PDF tests
+│   ├── test_prices.py                            <- S1 price fetching tests
+│   ├── test_app.py                               <- S2 app tests
+│   └── fixtures/                                 <- test data
+│       ├── predictions_2026-11-11.xlsx
+│       ├── predictions_2026-11-11.csv
+│       ├── full_leaderboard_2026-11-11.csv
+│       └── rank_standings_2026-11-11.csv
 │
 ├── changes.md                                    <- history of what's changed and why
 │                                                     (for whoever maintains this)
@@ -92,16 +117,60 @@ You only need to do this setup once per computer.
    folder to bundle this week's charts into a single PDF, handy for emailing
    or printing.
 
-**Heads up — if the notebook ever produces results in an unexpected folder:**
-the notebook decides where to save its output using a hard-coded folder path
-set near the top (a variable called `BASE_DIR`), not automatically based on
-where you double-clicked the file from. Right now that path points at
-`/Users/gunnarbalch/PycharmProjects/Jupyter/Student Predictions`, a different
-folder than this one (`MFStudentPredictions`). If you've moved this project
-and `results/`/`old_results/` stop updating where you expect, that hard-coded
-path is why — it needs to be updated to point at wherever this project
-actually lives. I didn't change it since that's a code edit, not a docs
-change — flagging it here so it doesn't look mysterious later.
+---
+
+## Web app (alternative: interactive scoring without the notebook)
+
+Instead of running the notebook by hand, you can use the **Streamlit web app**
+to interactively upload files and generate charts in your browser.
+
+### Run locally
+
+1. Install dependencies (same as the notebook setup):
+   ```
+   pip install -r requirements.txt
+   ```
+2. Start the app:
+   ```
+   streamlit run app.py
+   ```
+   This opens the app in your default browser at `http://localhost:8501`.
+
+### Features
+
+- **Download the sample file** (`Fall 2026 Market Predictions (Responses).xlsx`)
+  with a single click — the download strips out student email addresses and
+  NetIDs (PII) to keep responses private.
+- **Upload your own file** (optional `.xlsx` or `.csv`) to score a different
+  set of predictions. Uploads are **never stored**; they're validated and
+  processed in your session only.
+- **Validate input immediately** before scoring — see any format errors or
+  warnings right away.
+- **Generate charts on demand** with one click. Prices are fetched live from
+  Yahoo Finance and cached for 5 minutes to avoid hitting the API too often.
+- **Download charts individually** as PNG images, or all at once as a PDF.
+
+### Deploy on Streamlit Community Cloud
+
+To make the app publicly accessible (e.g., for sharing with students or for
+use in class):
+
+1. Push this repository to GitHub (`main` branch).
+2. Go to [Streamlit Community Cloud](https://streamlit.io/cloud) and sign in
+   with your GitHub account.
+3. Click "New app," select this repository, set the main file to `app.py`, and
+   deploy.
+
+The app will be live at a URL like `https://yourname-predictions.streamlit.app`.
+
+### Updating the sample file
+
+To update the sample data the app offers for download:
+
+1. Replace `Fall 2026 Market Predictions (Responses).xlsx` with a new file
+   (same filename).
+2. Push to GitHub.
+3. The web app picks up the new file on the next page load.
 
 ---
 

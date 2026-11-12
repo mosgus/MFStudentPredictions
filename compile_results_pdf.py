@@ -1,11 +1,9 @@
 """Compile the PNG charts in results/ into a single PDF, one image per page."""
 
-import io
 import re
 from pathlib import Path
 
-from PIL import Image
-from pypdf import PdfWriter
+from mfpredict.pdf import pngs_to_pdf
 
 RESULTS_DIR = Path(__file__).parent / "results"
 DATE_SUFFIX = re.compile(r"_(\d{4}-\d{2}-\d{2})\.png$")
@@ -27,18 +25,16 @@ def main():
         png_paths = all_pngs
         output_pdf = RESULTS_DIR / "results.pdf"
 
-    writer = PdfWriter()
+    # Read PNG bytes and compile to PDF
+    png_bytes_list = []
     for png_path in png_paths:
-        image = Image.open(png_path).convert("RGB")
-        buffer = io.BytesIO()
-        image.save(buffer, format="PDF")
-        buffer.seek(0)
-        page_writer = PdfWriter(clone_from=buffer)
-        writer.append(page_writer)
+        with open(png_path, "rb") as f:
+            png_bytes_list.append(f.read())
         print(f"Added {png_path.name}")
 
+    pdf_bytes = pngs_to_pdf(png_bytes_list)
     with open(output_pdf, "wb") as f:
-        writer.write(f)
+        f.write(pdf_bytes)
     print(f"Wrote {output_pdf}")
 
 
