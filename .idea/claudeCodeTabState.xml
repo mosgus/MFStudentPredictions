@@ -20,7 +20,7 @@
             <TabSessionState>
               <option name="projectPath" value="$PROJECT_DIR$" />
               <option name="provider" value="claude" />
-              <option name="sessionId" value="8f8cc04e-e9d9-44b9-894c-4fb1e941a3ed" />
+              <option name="sessionId" value="7390c1de-c64f-4d6b-b26a-38e4f831d7d1" />
               <option name="cwd" value="$PROJECT_DIR$" />
               <option name="model" value="claude-haiku-4-5" />
               <option name="permissionMode" value="default" />
@@ -30,5 +30,6 @@
       </map>
     </option>
     <option name="tabCount" value="2" />
+    <option name="selectedTabIndex" value="1" />
   </component>
 </project>

@@ -207,7 +207,15 @@ if "results" in st.session_state:
         for message in results["score_messages"]:
             st.write(message)
 
-        # PDF download
+        # PDF download with green styling
+        st.markdown("""
+            <style>
+            div[data-testid="stDownloadButton"] button {
+                background-color: #1baf7a !important;
+                color: white !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
         st.download_button(
             label="📥 Download all charts (PDF)",
             data=results["pdf"],
